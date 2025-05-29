@@ -34,14 +34,14 @@ predictive_maintenance_project/
 
 
 ## 🚀 Быстрый старт
-
+```
 1. Клонируйте репозиторий:
 ```
 bash
 git clone https://github.com/ваш_username/predictive_maintenance_project.git
 cd predictive_maintenance_project
 ```
-```
+
 2. Установите зависимости:
 ```
 bash
