@@ -37,20 +37,17 @@ predictive_maintenance_project/
 ```
 1. Клонируйте репозиторий:
 ```
-bash
 git clone https://github.com/ваш_username/predictive_maintenance_project.git
 cd predictive_maintenance_project
 ```
 
 2. Установите зависимости:
 ```
-bash
 pip install -r requirements.txt
 
 ```
 3. Запустите приложение:
 ```
-bash
 streamlit run app.py
 ```
 
