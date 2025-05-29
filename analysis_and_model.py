@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_curve, roc_auc_score
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, roc_auc_score
 
 def analysis_and_model_page():
     st.title("Анализ данных и модель")
@@ -24,8 +24,18 @@ def analysis_and_model_page():
         data['Type'] = LabelEncoder().fit_transform(data['Type'])
         
         # Масштабирование числовых признаков
-        numerical_features = ['Air temperature [K]', 'Process temperature [K]', 
-                            'Rotational speed [rpm]', 'Torque [Nm]', 'Tool wear [min]']
+        numerical_features = ['Air temperature K', 'Process temperature K', 
+                            'Rotational speed rpm', 'Torque Nm', 'Tool wear min']
+        
+        # Убедимся, что названия признаков в данных корректные (без скобок)
+        data.rename(columns={
+            'Air temperature [K]': 'Air temperature K',
+            'Process temperature [K]': 'Process temperature K',
+            'Rotational speed [rpm]': 'Rotational speed rpm',
+            'Torque [Nm]': 'Torque Nm',
+            'Tool wear [min]': 'Tool wear min'
+        }, inplace=True)
+        
         scaler = StandardScaler()
         data[numerical_features] = scaler.fit_transform(data[numerical_features])
         
@@ -41,9 +51,9 @@ def analysis_and_model_page():
         st.header("Обучение моделей")
         
         models = {
-            "Logistic Regression": LogisticRegression(),
+            "Logistic Regression": LogisticRegression(max_iter=1000),
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
-            "XGBoost": XGBClassifier(n_estimators=100, learning_rate=0.1, random_state=42)
+            "XGBoost": XGBClassifier(n_estimators=100, learning_rate=0.1, random_state=42, use_label_encoder=False, eval_metric='logloss')
         }
         
         results = {}
@@ -97,20 +107,32 @@ def analysis_and_model_page():
             torque = st.number_input("Крутящий момент [Nm]", value=40.0)
             tool_wear = st.number_input("Износ инструмента [min]", value=0)
             
+            # Добавляем бинарные признаки для предсказания с дефолтными значениями 0
+            twf = st.checkbox("TWF (Tool Wear Failure)", value=False)
+            hdf = st.checkbox("HDF (Heat Dissipation Failure)", value=False)
+            pwf = st.checkbox("PWF (Power Failure)", value=False)
+            osf = st.checkbox("OSF (Overstrain Failure)", value=False)
+            rnf = st.checkbox("RNF (Random Failure)", value=False)
+            
             submit_button = st.form_submit_button("Предсказать")
         
         if submit_button:
-            # Преобразование введенных данных
+            # Преобразование введенных данных в DataFrame с правильными признаками
             input_data = pd.DataFrame({
                 'Type': [0 if product_type == 'L' else 1 if product_type == 'M' else 2],
-                'Air temperature [K]': [(air_temp - 300) / 2],  # Примерное масштабирование
-                'Process temperature [K]': [(process_temp - 310) / 1],
-                'Rotational speed [rpm]': [(rotational_speed - 1500) / 100],
-                'Torque [Nm]': [(torque - 40) / 10],
-                'Tool wear [min]': [tool_wear / 10]
+                'Air temperature K': [(air_temp - 300) / 2],  # масштабирование по обучению
+                'Process temperature K': [(process_temp - 310) / 1],
+                'Rotational speed rpm': [(rotational_speed - 1500) / 100],
+                'Torque Nm': [(torque - 40) / 10],
+                'Tool wear min': [tool_wear / 10],
+                'TWF': [1 if twf else 0],
+                'HDF': [1 if hdf else 0],
+                'PWF': [1 if pwf else 0],
+                'OSF': [1 if osf else 0],
+                'RNF': [1 if rnf else 0]
             })
             
-            # Выбор лучшей модели
+            # Выбор лучшей модели по roc_auc
             best_model_name = max(results, key=lambda x: results[x]['roc_auc'])
             best_model = models[best_model_name]
             
@@ -121,3 +143,4 @@ def analysis_and_model_page():
             st.write(f"Лучшая модель: {best_model_name}")
             st.write(f"Предсказание: {'Отказ' if prediction[0] == 1 else 'Нет отказа'}")
             st.write(f"Вероятность отказа: {prediction_proba[0]:.2f}")
+
