@@ -18,9 +18,9 @@ Streamlit-приложение для прогнозирования отказ�
 - **Pandas** - обработка данных
 - **Matplotlib/Seaborn** - визуализация
 
-📂 Структура проекта
+## 📂 Структура проекта
 
-```
+## 📂 Структура проекта
 predictive_maintenance_project/
 ├── app.py                 # Основной файл приложения
 ├── analysis_and_model.py  # Логика анализа и модели
@@ -31,23 +31,26 @@ predictive_maintenance_project/
 │   └── predictive_maintenance.csv
 └── video/                 # Демонстрация
     └── demo.mp4
-```
+
 
 ## 🚀 Быстрый старт
 
 1. Клонируйте репозиторий:
-```bash
+```
+bash
 git clone https://github.com/ваш_username/predictive_maintenance_project.git
 cd predictive_maintenance_project
 ```
-
-2. Установите зависимости:
-```bash
-pip install -r requirements.txt
 ```
+2. Установите зависимости:
+```
+bash
+pip install -r requirements.txt
 
+```
 3. Запустите приложение:
-```bash
+```
+bash
 streamlit run app.py
 ```
 
